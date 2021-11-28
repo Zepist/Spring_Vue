@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boardMapper">
+
+   <!-- 게시판 목록 전체 조회 -->
+   <select id="selectList" resultType="kr.co.vo.BoardVO">
+	   SELECT BNO
+			, TITLE 
+			, CUSER 
+			, TO_CHAR(CDATE,'YYYY-MM-DD') AS CDATE
+			, TO_CHAR(UDATE,'YYYY-MM-DD') AS UDATE
+	   FROM MP_BOARD
+	   ORDER BY BNO
+   </select>
+
+   <!-- 검색 후 게시판 목록 조회 -->
+   <select id="searchList" parameterType="kr.co.vo.BoardVO" resultType="kr.co.vo.BoardVO">
+	   SELECT BNO
+			, TITLE 
+			, CUSER 
+			, TO_CHAR(CDATE,'YYYY-MM-DD') AS CDATE
+	   FROM MP_BOARD
+	   WHERE 1=1
+	   <if test="bno != 0">
+		   AND BNO = #{bno}
+	   </if>
+	   <if test="title != null">
+		   AND TITLE LIKE '%' || #{title} || '%'
+	   </if>
+	   <if test="content != null">
+		   AND CONTENT LIKE '%' || #{content} || '%'
+	   </if>
+	   <if test="cuser != null">
+		   AND CUSER LIKE '%' || #{cuser} || '%'
+	   </if>
+	   <if test="cdate != null">
+		   AND TO_CHAR(CDATE,'YYYYMMDD') = #{cdate}
+	   </if>
+   </select>
+
+   <!-- 게시판 글 작성 -->
+   <insert id="insert" parameterType="kr.co.vo.BoardVO">
+	   INSERT INTO MP_BOARD
+		   			 (  BNO 
+				      , TITLE 
+				      , CONTENT 
+				      , CUSER 
+				      , CDATE
+				      , UDATE
+				     )
+	           VALUES(
+	           			MP_BOARD_SEQ.NEXTVAL 
+               		  , #{title}
+               		  , #{content}
+               		  , #{cuser}  
+               		  , SYSDATE
+               		  , SYSDATE
+               	     )
+   </insert>
+   
+   <!-- 게시판 글 수정 -->
+   <update id="update" parameterType="kr.co.vo.BoardVO">
+	   UPDATE MP_BOARD
+		  SET TITLE   = #{title}
+		    , CONTENT = #{content}
+		    , UDATE   = SYSDATE
+		WHERE 1=1
+		  AND BNO     = #{bno}
+		  AND CUSER   = #{cuser}
+   </update>
+   
+   <!-- 게시판 글 삭제 -->
+   <delete id="delete" parameterType="int">
+	   DELETE MP_BOARD
+		WHERE 1=1
+		  AND BNO     = #{bno}
+   </delete>
+   
+</mapper>
